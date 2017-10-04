@@ -2,7 +2,7 @@
 
 This exposes the Poly1305 one-time MAC algorithm.
 
-The C code was lifted from WireGuard and adopted by my inexperienced hands, using [abeaumont's salsa20 bindings](https://github.com/abeaumont/salsa20-core) as a template.
+The C code was lifted from WireGuard and adopted by my inexperienced hands, using [abeaumont's salsa20 bindings](https://github.com/abeaumont/ocaml-salsa20-core) as a template.
 
 ## You don't want to use this
 
