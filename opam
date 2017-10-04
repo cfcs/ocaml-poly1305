@@ -1,0 +1,32 @@
+opam-version: "1.2"
+name:         "poly1305"
+homepage:     "https://github.com/cfcs/ocaml-poly1305"
+dev-repo:     "https://github.com/cfcs/ocaml-poly1305.git"
+bug-reports:  "https://github.com/cfcs/ocaml-poly1305/issues"
+author:       "none"
+maintainer:   "none"
+license:      "Public domain"
+
+build: [
+  [ "ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%" "--tests" "false"
+    "--xen" "%{mirage-xen:installed}%"
+    "--freestanding" "%{mirage-solo5:installed}%" ]
+]
+build-test: [
+  ["ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%" "--tests" "true"]
+  ["ocaml" "pkg/pkg.ml" "test"]
+]
+depends: [
+  "ocamlfind" {build}
+  "ocamlbuild" {build}
+  "topkg" {build}
+  "ocb-stubblr" {build}
+  "cstruct" {>= "1.7.0"}
+
+  "alcotest" {test}
+  "cs" {test}
+
+  ("mirage-no-xen" | "mirage-xen")
+  ("mirage-no-solo5" | "mirage-solo5")
+]
+available: [ ocaml-version >= "4.02.0" ]
