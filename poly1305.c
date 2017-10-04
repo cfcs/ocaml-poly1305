@@ -1,16 +1,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include <endian.h>
 
 #define CAML_NAME_SPACE
 #include <caml/mlvalues.h>
 #include <caml/bigarray.h>
 
-// this is some sort of GCC hint thingie... disabling that.
-#define likely(b) (b)
-#define unlikely(b) (b)
-# define __always_inline __inline __attribute__ ((__always_inline__))
+#ifndef likely
+  // this is some sort of GCC hint thingie... disabling that.
+  #define likely(b) (b)
+  #define unlikely(b) (b)
+#endif
+
+#ifndef __always_inline
+  # define __always_inline __inline __attribute__ ((__always_inline__))
+#endif
 
 // define type aliases
 typedef uint8_t u8;
