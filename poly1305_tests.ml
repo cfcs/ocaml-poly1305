@@ -6,20 +6,19 @@ let fail_if_error = function Ok () -> () | Error (`Msg err) -> failwith err
 
 let test_poly1305 () =
   (* This is some of the test vectors from RFC7539 *)
-  let () =
-  Alcotest.(check cs) "All null"
-      (Cs.make 16 '\x00') @@
-   Poly1305.do_once ~key:(Cs.make 32 '\000') ~data:(Cs.make 64 '\000')
+  let test_vector description ~key ~data ~tag =
+    Alcotest.(check cs) description tag
+    @@  Poly1305.do_once ~key ~data
   in
-  let () =
-    let key = Cs.concat [Cs.of_string "\x02\x00\x00\x00\x00\x00\x00\x00";
-                         Cs.of_string "\x00\x00\x00\x00\x00\x00\x00\x00";
-                         Cs.make 16 '\xff' ]  in
-    let data = Cs.of_string "\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" in
-    Alcotest.(check cs) "one_three"
-    (Cs.of_string "\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-    (Poly1305.do_once ~key ~data)
-  in
+  test_vector "All null" ~tag:(Cs.make 16 '\x00')
+    ~key:(Cs.make 32 '\000') ~data:(Cs.make 64 '\000') ;
+  test_vector "one_three" ~tag:(Cs.of_string
+      "\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+    ~key:(Cs.concat [Cs.of_string "\x02\x00\x00\x00\x00\x00\x00\x00";
+                    Cs.of_string "\x00\x00\x00\x00\x00\x00\x00\x00";
+                    Cs.make 16 '\xff' ])
+    ~data:(Cs.of_string
+      "\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00") ;
   let () =
     let key = ["\x1c\x92\x40\xa5\xeb\x55\xd3\x8a";
                "\xf3\x33\x88\x86\x04\xf6\xb5\xf0";
@@ -43,16 +42,21 @@ let test_poly1305 () =
                 "\x72\x61\x74\x68\x73\x20\x6f\x75";
                 "\x74\x67\x72\x61\x62\x65\x2e"]
                |> List.map Cs.of_string |> Cs.concat in
-    Alcotest.(check cs) "complicated"
-    (Cs.of_string "\x45\x41\x66\x9a\x7e\xaa\xee\x61\xe7\x08\xdc\x7c\xbc\xc5\xeb\x62")
-    (Poly1305.do_once ~key ~data)
+    test_vector "complicated" ~key ~data
+      ~tag:(Cs.of_string
+        "\x45\x41\x66\x9a\x7e\xaa\xee\x61\xe7\x08\xdc\x7c\xbc\xc5\xeb\x62")
   in
+  test_vector "RFC 7539 2.5.2"
+    ~tag:(Cs.of_hex "a8061dc1305136c6c22b8baf0c0127a9" |> R.get_ok)
+    ~data:(Cs.of_string "Cryptographic Forum Research Group")
+    ~key:(R.get_ok @@ Cs.of_hex
+      "85d6be7857556d337f4452fe42d506a80103808afb0db2fd4abff6af4149f51b") ;
   ()
 
 let tests =
   [
     "Poly1305",[
-      "RFC 7539 test vectors", `Quick, test_poly1305
+      "test vectors", `Quick, test_poly1305
     ];
   ]
 
