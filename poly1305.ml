@@ -10,9 +10,15 @@ external poly1305_init :
   poly1305_buf -> int ->
   poly1305_buf -> int -> unit = "caml_poly1305_init" [@@noalloc]
 
-let init ~(key:buf) : ctx =
-  let ctx = Cstruct.create (poly1305_sizeof_ctx ()) in
-  poly1305_init ctx.buffer ctx.off key.buffer key.off ; ctx
+type error = [`Msg of string]
+
+let init ~(key:buf) : (ctx, [> error]) result =
+  if 32 <> Cstruct.len key then Error (`Msg "poly1305 key must be 32 bytes")
+  else begin
+    let ctx = Cstruct.create (poly1305_sizeof_ctx ()) in
+    poly1305_init ctx.buffer ctx.off key.buffer key.off ;
+    Ok ctx
+  end
 
 external poly1305_update :
   poly1305_buf -> int ->
@@ -34,6 +40,7 @@ let finish (t:ctx) : buf =
   poly1305_finish t.buffer t.off output.buffer output.off ; output
 
 
-let do_once ~(key:buf) ~(data:buf) : buf =
-  let ctx = init ~key in
-  update ctx data ; finish ctx
+let do_once ~(key:buf) ~(data:buf) : (buf, [> error ]) result =
+  match init ~key with
+  | Ok ctx -> update ctx data ; Ok (finish ctx)
+  | error -> error

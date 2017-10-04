@@ -7,7 +7,7 @@ let fail_if_error = function Ok () -> () | Error (`Msg err) -> failwith err
 let test_poly1305 () =
   (* This is some of the test vectors from RFC7539 *)
   let test_vector description ~key ~data ~tag =
-    Alcotest.(check cs) description tag
+    Alcotest.(check @@ result cs reject) description (Ok tag)
     @@  Poly1305.do_once ~key ~data
   in
   test_vector "All null" ~tag:(Cs.make 16 '\x00')

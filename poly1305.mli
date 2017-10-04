@@ -3,7 +3,9 @@
 type buf = Cstruct.t
 type ctx
 
-val init   : key:buf -> ctx
+type error = [`Msg of string]
+
+val init   : key:buf -> (ctx, [> error ]) result
 (** [init ~key] initializes a new one-time MAC context.
     The [~key] MUST be exactly 32 bytes long.*)
 
@@ -15,4 +17,4 @@ val finish : ctx -> buf
     [context] must be a valid context from [init], not finish'ed before.
     Segfaults or worse if [context] is bad. *)
 
-val do_once : key:buf -> data:buf -> buf
+val do_once : key:buf -> data:buf -> (buf, [> error ]) result
