@@ -1,4 +1,5 @@
 # OCaml bindings to C stubs for Poly1305
+![Build status](https://travis-ci.org/cfcs/ocaml-poly1305.svg?branch=master)
 
 This exposes the Poly1305 one-time MAC algorithm.
 
