@@ -1,4 +1,5 @@
 PKG cstruct alcotest
+PKG cs
 PKG topkg
 
 B _build/
